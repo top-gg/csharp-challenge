@@ -11,6 +11,8 @@ You will develop a C# API that allows the user query an endpoint with the follow
 
 Using the data from USGS we will assume that all earthquakes have a consistent travel distance calculated by `magnitude * 100`
 
+The radius of the earth can be considered a constant of 3959mi.
+
 *Hint: Because the earth is spherical you will need to use Haversine formula*
 
 ### Requirements
