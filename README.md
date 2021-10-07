@@ -22,5 +22,6 @@ Using the data from USGS we will assume that all earthquakes have a consistent t
 
 - Write tests for your endpoint
 - Use realtime data from USGS instead of a CSV file
+- Add document about how to improve performance and scale of the API
 
 This challenge is designed to be completed within a few hours and is intended to see how you structure code and ensure you can follow specs. Our company values respect work/home separation so please dont spend a long time trying to solve the problem.
