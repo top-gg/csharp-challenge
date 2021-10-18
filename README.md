@@ -1,29 +1,37 @@
-# Earthquake Challenge
+# Developer Story
 
-## Was that an Earthquake?
+## What I could finish:
 
-Earthquakes are always in the news. Many people have friends/family members who live near earthquake zones and they would like to know if a friend/family member was affected by the earthquake Thanks to USGS we have up to date data on all earthquakes that have happened across the globe.
-## The Challenge
+- Created an API endpoint with the required param names: lat, long, start_date, end_date.
+- Consumed a CSV Data Source with the given CSV file (actually I have downloaded the up-to-date version of that from the USGS website.)
+- Consumed the USGS Earthquake Catalog API with real-time data (https://earthquake.usgs.gov/fdsnws/event/1/)
+- Created very simple unit tests to demonstrate some TDD skills for both data contexts.
+- README file.
 
-Because friends/family want to make sure the people they care about are safe you will develop an API that uses the CSV provided(all_month.csv) in the repo or you can download the latest CSV from [USGS](https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv).
+## Performance:
 
-You will develop a C# API that allows the user query an endpoint with the following parameters: `lat`, `long`, `start_date`, `end_date`.
+    1. CSV Data Source: 
 
-Using the data from USGS we will assume that all earthquakes have a consistent travel distance calculated by `magnitude * 100`
+    I have reduced the re-reading file with every single request I have encapsulated the CSVDataContext in a singleton lifetime via dependency injection. Even though in-memory solutions are very fast in terms of retrieving data, still a data-caching solution would have made it faster. Scalability could be another concern here.
 
-The radius of the earth can be considered a constant of 3959mi.
+    2. USGS Data Source:
 
-*Hint: Because the earth is spherical you will need to use Haversine formula*
+    I have used a HttpClient for connecting the USGS Earthquake Catalog in a singleton concept and created a disposable one. Because USGS only filters data by maxradiuskm or maxradius I had to fetch all data within maximum travel distance from specific coordinates (I have added a comment for this). This led me to fetch more than necessary (over-fetching) and I had to filter it again with the (magnitude * 100) formula. Here again, I could have cached the retrieved data. We depend on the USGS API’s availability here. This creates an availability concern.
 
-### Requirements
 
-- The endpoint should return the 10 latest earthquakes for a given lat/long for a date period in newest to oldest order.
-- If there are no earthquakes for  the parameters the endpoint should return a 404 error
+## Scalability:
 
-#### Exta Credit
+    If we experience some scalability issues, (since we have only one simple method partitioning the API horizontally is not a viable solution) we can partition the API vertically and use multiple servers. 
 
-- Write tests for your endpoint
-- Use realtime data from USGS instead of a CSV file
-- Add README that describes to improve performance and scale of the API
+    Keeping all CSV data in RAM would not be the most elegant solution here in terms of scalability. If we partition the API vertically, we may need to use a more central data persisting solution. But for now, we only have READ operations, a single API back-end, and we use a singleton object for those READ operations we are fine.
 
-This challenge is designed to be completed within a few hours and is intended to see how you structure code and ensure you can follow specs. Our company values respect work/home separation so please dont spend a long time trying to solve the problem.
+## Availability:
+
+    The major concern here would be querying USGS Earthquake Catalog API. We depend on their availability. We could mitigate the issue with caching.
+
+## What I could have improved:
+
+- Try-catches are mostly empty and in very simple forms. But exception bubbling practices can be seen as demonstrated. More specific exception types or AggregateException could be used within some blocks. Some more try-catches could have been used.
+- More asynchronous operations could have been used.
+- I have strictly tried to follow OCP and CQS but there are minor violations.
+- More testing could have been written for the alternative scenarios and validations.
