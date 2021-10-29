@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Earthquake.API.AutoMappingProfiles;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Earthquake.API.Tests
@@ -23,10 +24,9 @@ namespace Earthquake.API.Tests
         [TestInitialize]
         public void Initialize()
         {
-            var csvFullFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException(),
-                "all_month.csv");
-            var csvParser = new CsvParser(csvFullFileName);
-            var dataContext = new CsvDataContext(csvParser);
+            using var logFactory = LoggerFactory.Create(builder => builder.AddDebug());
+            var logger = logFactory.CreateLogger<EarthquakeCsvController>();
+
             var mapperProfile = new EarthquakeMappingProfile();
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile(mapperProfile));
             var mapper = new Mapper(mapperConfiguration);
@@ -34,7 +34,11 @@ namespace Earthquake.API.Tests
             var opts = Options.Create(new MemoryDistributedCacheOptions());
             var cache = new MemoryDistributedCache(opts);
 
-            _controller = new EarthquakeCsvController(dataContext, mapper, cache);
+            var csvFullFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException(), "all_month.csv");
+            var csvParser = new CsvParser(csvFullFileName);
+            var dataContext = new CsvDataContext(csvParser);
+            
+            _controller = new EarthquakeCsvController(logger, dataContext, mapper, cache);
         }
 
         [TestMethod]

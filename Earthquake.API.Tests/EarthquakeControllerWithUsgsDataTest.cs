@@ -9,6 +9,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Earthquake.API.Tests
@@ -21,16 +22,20 @@ namespace Earthquake.API.Tests
         [TestInitialize]
         public void Initialize()
         {
-            var usgsHttpClient = new UsgsHttpClient("https://earthquake.usgs.gov/fdsnws/event/1/");
-            var dataContext = new UsgsDataContext(usgsHttpClient);
+            var opts = Options.Create(new MemoryDistributedCacheOptions());
+            var cache = new MemoryDistributedCache(opts);
+
+            using var logFactory = LoggerFactory.Create(builder => builder.AddDebug());
+            var logger = logFactory.CreateLogger<EarthquakeUsgsController>();
+
             var mapperProfile = new EarthquakeMappingProfile();
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile(mapperProfile));
             var mapper = new Mapper(mapperConfiguration);
 
-            var opts = Options.Create(new MemoryDistributedCacheOptions());
-            var cache = new MemoryDistributedCache(opts);
+            var usgsHttpClient = new UsgsHttpClient("https://earthquake.usgs.gov/fdsnws/event/1/");
+            var dataContext = new UsgsDataContext(usgsHttpClient);
 
-            _controller = new EarthquakeUsgsController(dataContext, mapper, cache);
+            _controller = new EarthquakeUsgsController(logger, dataContext, mapper, cache);
         }
 
         [TestMethod]

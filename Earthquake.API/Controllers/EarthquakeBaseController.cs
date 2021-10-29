@@ -18,12 +18,14 @@ namespace Earthquake.API.Controllers
         private readonly IDataContext _dataContext;
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
+        private readonly ILogger _logger;
 
-        protected EarthquakeBaseController(IDataContext dataContext, IMapper mapper, IDistributedCache cache)
+        protected EarthquakeBaseController(ILogger logger, IDataContext dataContext, IMapper mapper, IDistributedCache cache)
         {
             _dataContext = dataContext;
             _mapper = mapper;
             _cache = cache;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -56,13 +58,13 @@ namespace Earthquake.API.Controllers
                     return Ok(earthquakesDto);
                 }
             }
-            catch (DataContextException)
+            catch (DataContextException dataContextException)
             {
-                //TODO: Do something with the dataContextException
+                _logger.LogError(dataContextException, "There was an exception with DataContext.");
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                //TODO: Do something with other exceptions
+                _logger.LogError(exception, "There was an exception.");
             }
 
             return NotFound();

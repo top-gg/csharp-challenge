@@ -1,9 +1,9 @@
-﻿using Earthquake.Entities;
-using Earthquake.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Earthquake.Entities;
+using Earthquake.Infrastructure;
 
 namespace Earthquake.Data.CSV
 {
@@ -17,17 +17,18 @@ namespace Earthquake.Data.CSV
             {
                 _earthquakes = csvParser.Read<EarthquakeEntity, EarthquakeMap>().ToList();
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException fileNotFoundException)
             {
-                //TODO: we need to log the exception or throw it
+                throw new DataContextException(fileNotFoundException.Message, fileNotFoundException);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                //TODO: we need to log the exception or throw it
+                throw new DataContextException(exception.Message, exception);
             }
         }
 
-        public IEnumerable<EarthquakeEntity> FindByCoordinatesBetweenDateRange(double latitude, double longitude, DateTime startDate, DateTime endDate, byte magnitudeMultiplier)
+        public IEnumerable<EarthquakeEntity> FindByCoordinatesBetweenDateRange(double latitude, double longitude,
+            DateTime startDate, DateTime endDate, byte magnitudeMultiplier)
         {
             try
             {
@@ -36,7 +37,8 @@ namespace Earthquake.Data.CSV
                 // so we use ToLocalTime() for our date filters.
                 return _earthquakes
                     .OrderByDescending(t => t.Time)
-                    .Where(t => Haversine.CalculateDistanceInMiles(latitude, longitude, t.Latitude, t.Longitude) <= t.Magnitude * magnitudeMultiplier && 
+                    .Where(t => Haversine.CalculateDistanceInMiles(latitude, longitude, t.Latitude, t.Longitude) <=
+                                t.Magnitude * magnitudeMultiplier &&
                                 t.Time >= startDate.ToLocalTime() && t.Time <= endDate.ToLocalTime())
                     .Take(10);
             }
@@ -44,7 +46,6 @@ namespace Earthquake.Data.CSV
             {
                 throw new DataContextException("There was an exception with CSV Data Context", exception);
             }
-
         }
     }
 }
