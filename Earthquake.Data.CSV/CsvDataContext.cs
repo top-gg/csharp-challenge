@@ -37,7 +37,7 @@ namespace Earthquake.Data.CSV
                 return _earthquakes
                     .OrderByDescending(t => t.Time)
                     .Where(t => Haversine.CalculateDistanceInMiles(latitude, longitude, t.Latitude, t.Longitude) <= t.Magnitude * magnitudeMultiplier && 
-                                t.Time.Date >= startDate.Date.ToLocalTime() && t.Time.Date <= endDate.Date.ToLocalTime())
+                                t.Time >= startDate.ToLocalTime() && t.Time <= endDate.ToLocalTime())
                     .Take(10);
             }
             catch (Exception exception)

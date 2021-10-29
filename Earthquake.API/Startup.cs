@@ -1,3 +1,9 @@
+using System;
+using System.IO;
+using System.Reflection;
+using Earthquake.API.AutoMappingProfiles;
+using Earthquake.Data.CSV;
+using Earthquake.Data.USGS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +30,16 @@ namespace Earthquake.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "Earthquake.API", Version = "v1"});
             });
+
+            services.AddSingleton<IUsgsHttpClient>(new UsgsHttpClient(Configuration["USGSApiBaseAddress"]));
+            services.AddSingleton<IUsgsDataContext, UsgsDataContext>();
+
+            var csvFileDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var csvFullFileName = Path.Combine(csvFileDirectory ?? throw new InvalidOperationException(), Configuration["EarthquakeDataCSVFileName"]);
+            services.AddSingleton<ICsvParser>(new CsvParser(csvFullFileName));
+            services.AddSingleton<ICsvDataContext, CsvDataContext>();
+
+            services.AddAutoMapper(typeof(EarthquakeMappingProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
