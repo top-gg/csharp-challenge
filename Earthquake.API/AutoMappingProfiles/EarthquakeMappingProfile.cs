@@ -1,5 +1,5 @@
-﻿using Earthquake.DTO;
-using AutoMapper;
+﻿using AutoMapper;
+using Earthquake.DTO;
 using Earthquake.Entities;
 
 namespace Earthquake.API.AutoMappingProfiles

@@ -12,9 +12,9 @@ namespace Earthquake.Data.USGS
         private readonly HttpClient _client;
         private bool _disposed;
 
-        public UsgsHttpClient(string baseAdress)
+        public UsgsHttpClient(string baseAddress)
         {
-            _client = new HttpClient {BaseAddress = new Uri(baseAdress)};
+            _client = new HttpClient {BaseAddress = new Uri(baseAddress)};
             _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }

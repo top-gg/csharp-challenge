@@ -19,7 +19,7 @@ namespace Earthquake.API.Tests
         [TestInitialize]
         public void Initialize()
         {
-            var csvFullFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            var csvFullFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException(),
                 "all_month.csv");
             var csvParser = new CsvParser(csvFullFileName);
             var dataContext = new CsvDataContext(csvParser);
@@ -33,10 +33,10 @@ namespace Earthquake.API.Tests
         [TestMethod]
         public void EndPoint_ReturnsData_Is_True()
         {
-            double latitude = 38.5563316;
-            double longitude = -119.5276642;
-            DateTime startDate = DateTime.Parse("2021-10-12");
-            DateTime endDate = DateTime.Parse("2021-10-13");
+            const double latitude = 38.5563316;
+            const double longitude = -119.5276642;
+            var startDate = DateTime.Parse("2021-10-12");
+            var endDate = DateTime.Parse("2021-10-13");
 
             var data = _controller.FindByCoordinatesBetweenDateRange(latitude, longitude, startDate, endDate);
 
@@ -47,10 +47,10 @@ namespace Earthquake.API.Tests
         [TestMethod]
         public void EndPoint_Returns404_Is_True()
         {
-            double latitude = 90;
-            double longitude = 90;
-            DateTime startDate = DateTime.Parse("2024-01-01");
-            DateTime endDate = DateTime.Parse("2025-01-01");
+            const double latitude = 90;
+            const double longitude = 90;
+            var startDate = DateTime.Parse("2024-01-01");
+            var endDate = DateTime.Parse("2025-01-01");
 
             var data = _controller.FindByCoordinatesBetweenDateRange(latitude, longitude, startDate, endDate);
 

@@ -6,6 +6,4 @@ namespace Earthquake.Data.USGS.GeoJSON
     {
         public List<double> Coordinates { get; set; }
     }
-
-
 }

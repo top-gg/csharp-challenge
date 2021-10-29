@@ -1,12 +1,12 @@
+using System;
+using System.IO;
+using System.Reflection;
 using Earthquake.API.AutoMappingProfiles;
 using Earthquake.Data.CSV;
 using Earthquake.Data.USGS;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.IO;
-using System.Reflection;
 
 namespace Earthquake.API
 {
@@ -31,7 +31,6 @@ namespace Earthquake.API
 
                     var earthquakeDataCsvFileName = configuration["EarthquakeDataCSVFileName"];
                     var csvFileDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
                     var csvFullFileName = Path.Combine(csvFileDirectory ?? throw new InvalidOperationException(), earthquakeDataCsvFileName);
                     services.AddSingleton<ICsvParser>(new CsvParser(csvFullFileName));
                     services.AddSingleton<ICsvDataContext, CsvDataContext>();

@@ -24,10 +24,11 @@ namespace Earthquake.Data.USGS
                 // Calculated from max magnitude ever seen (9.5) * arbitrary magnitude 
                 // multiplier in miles converted to KM (1.609344 mil-km constant multiplier)
                 // Example: (950 miles ~ 15289 kms)
-                double maxRadiusInKm = 9.5 * magnitudeMultiplier * 1.609344;
+                var maxRadiusInKm = 9.5 * magnitudeMultiplier * 1.609344;
 
                 var geoJsonResponse = _client
-                    .FindByCoordinatesBetweenDateRangeAsync(latitude, longitude, startDate, endDate, maxRadiusInKm).ConfigureAwait(true)
+                    .FindByCoordinatesBetweenDateRangeAsync(latitude, longitude, startDate, endDate, maxRadiusInKm)
+                    .ConfigureAwait(true)
                     .GetAwaiter().GetResult();
 
                 return geoJsonResponse.Features

@@ -8,7 +8,8 @@ namespace Earthquake.API.Controllers
     [Route("[controller]")]
     public class EarthquakeUsgsController : EarthquakeBaseController
     {
-        public EarthquakeUsgsController(IUsgsDataContext usgsDataContext, IMapper mapper) : base(usgsDataContext, mapper)
+        public EarthquakeUsgsController(IUsgsDataContext usgsDataContext, IMapper mapper) : base(usgsDataContext,
+            mapper)
         {
         }
     }

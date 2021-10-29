@@ -21,18 +21,19 @@ namespace Earthquake.API.Controllers
 
         [HttpGet]
         public ActionResult<IEnumerable<EarthquakeDto>> FindByCoordinatesBetweenDateRange(
-                [FromQuery(Name = "lat")] double latitude, 
-                [FromQuery(Name = "long")] double longitude,
-                [FromQuery(Name = "start_date")] DateTime startDate,
-                [FromQuery(Name = "end_date")] DateTime endDate
-            )
+            [FromQuery(Name = "lat")] double latitude,
+            [FromQuery(Name = "long")] double longitude,
+            [FromQuery(Name = "start_date")] DateTime startDate,
+            [FromQuery(Name = "end_date")] DateTime endDate
+        )
         {
             try
             {
                 // This multiplier was an arbitrary number.
                 const byte magnitudeMultiplier = 100;
 
-                var earthquakes = _dataContext.FindByCoordinatesBetweenDateRange(latitude, longitude, startDate.ToUniversalTime(),
+                var earthquakes = _dataContext.FindByCoordinatesBetweenDateRange(latitude, longitude,
+                    startDate.ToUniversalTime(),
                     endDate.ToUniversalTime(), magnitudeMultiplier);
                 if (earthquakes.Any())
                 {
