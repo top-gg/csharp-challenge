@@ -15,12 +15,14 @@ namespace Earthquake.API
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            HostingEnvironment = env;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -40,6 +42,19 @@ namespace Earthquake.API
             services.AddSingleton<ICsvDataContext, CsvDataContext>();
 
             services.AddAutoMapper(typeof(EarthquakeMappingProfile));
+
+            if (HostingEnvironment.IsDevelopment())
+            {
+                services.AddDistributedMemoryCache();
+            }
+            else
+            {
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = Configuration["RedisConnectionString"];
+                    options.InstanceName = "Earthquake";
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

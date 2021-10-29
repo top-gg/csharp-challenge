@@ -7,7 +7,11 @@ using System;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using Earthquake.API.AutoMappingProfiles;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace Earthquake.API.Tests
 {
@@ -27,32 +31,35 @@ namespace Earthquake.API.Tests
             var mapperConfiguration = new MapperConfiguration(cfg => cfg.AddProfile(mapperProfile));
             var mapper = new Mapper(mapperConfiguration);
 
-            _controller = new EarthquakeCsvController(dataContext, mapper);
+            var opts = Options.Create(new MemoryDistributedCacheOptions());
+            var cache = new MemoryDistributedCache(opts);
+
+            _controller = new EarthquakeCsvController(dataContext, mapper, cache);
         }
 
         [TestMethod]
-        public void EndPoint_ReturnsData_Is_True()
+        public async Task EndPoint_ReturnsData_Is_True()
         {
             const double latitude = 38.5563316;
             const double longitude = -119.5276642;
             var startDate = DateTime.Parse("2021-10-18T00:41:49.039Z");
             var endDate = DateTime.Parse("2021-10-18T00:43:16.039Z");
 
-            var data = _controller.FindByCoordinatesBetweenDateRange(latitude, longitude, startDate, endDate);
+            var data = await _controller.FindByCoordinatesBetweenDateRange(latitude, longitude, startDate, endDate);
 
             Assert.IsNotNull(data.Result);
             Assert.IsNotNull(((ObjectResult) data.Result).Value);
         }
 
         [TestMethod]
-        public void EndPoint_Returns404_Is_True()
+        public async Task EndPoint_Returns404_Is_True()
         {
             const double latitude = 38.5563316;
             const double longitude = -119.5276642;
             var startDate = DateTime.Parse("2021-10-18T00:27:33.842Z");
             var endDate = DateTime.Parse("2021-10-18T00:41:49.039Z");
 
-            var data = _controller.FindByCoordinatesBetweenDateRange(latitude, longitude, startDate, endDate);
+            var data = await _controller.FindByCoordinatesBetweenDateRange(latitude, longitude, startDate, endDate);
 
             Assert.AreEqual((int)HttpStatusCode.NotFound, ((StatusCodeResult)data.Result).StatusCode);
         }

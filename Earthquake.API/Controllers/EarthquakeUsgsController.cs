@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Earthquake.Data.USGS;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Earthquake.API.Controllers
 {
@@ -8,8 +9,8 @@ namespace Earthquake.API.Controllers
     [Route("[controller]")]
     public class EarthquakeUsgsController : EarthquakeBaseController
     {
-        public EarthquakeUsgsController(IUsgsDataContext usgsDataContext, IMapper mapper) : base(usgsDataContext,
-            mapper)
+        public EarthquakeUsgsController(IUsgsDataContext usgsDataContext, IMapper mapper, IDistributedCache cache) : base(usgsDataContext,
+            mapper, cache)
         {
         }
     }

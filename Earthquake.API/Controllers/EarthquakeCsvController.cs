@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Earthquake.Data.CSV;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Earthquake.API.Controllers
 {
@@ -8,7 +9,7 @@ namespace Earthquake.API.Controllers
     [Route("[controller]")]
     public class EarthquakeCsvController : EarthquakeBaseController
     {
-        public EarthquakeCsvController(ICsvDataContext csvDataContext, IMapper mapper) : base(csvDataContext, mapper)
+        public EarthquakeCsvController(ICsvDataContext csvDataContext, IMapper mapper, IDistributedCache cache) : base(csvDataContext, mapper, cache)
         {
         }
     }
