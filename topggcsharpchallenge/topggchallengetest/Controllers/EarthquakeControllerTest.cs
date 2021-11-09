@@ -1,23 +1,28 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 using topggcsharpchallenge.Controllers;
+using topggcsharpchallenge.Services;
 
 namespace topggcsharpchallengetest.Controllers
 {
     [TestFixture]
     public class EarthquakeControllerTest
     {
-        EearthquakeController sut;
+        Mock<IEarthquakeService> earthquakeServiceMock = new Mock<IEarthquakeService>();
+        EarthquakeController sut;
 
         [SetUp]
         public void SetUp()
         {
-            sut = new EearthquakeController();
+            sut = new EarthquakeController(earthquakeServiceMock.Object);
         }
 
         [Test]
         public void GetShouldBeSuccessfull()
         {
             sut.Get();
+
+            earthquakeServiceMock.Verify((x) => x.Get(), Times.Once);
         }
     }
 }
