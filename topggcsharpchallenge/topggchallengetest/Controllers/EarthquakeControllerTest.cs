@@ -1,7 +1,9 @@
-﻿using Moq;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Moq;
+using NUnit.Framework;
+
 using topggcsharpchallenge.Controllers;
 using topggcsharpchallenge.Models;
 using topggcsharpchallenge.Services;

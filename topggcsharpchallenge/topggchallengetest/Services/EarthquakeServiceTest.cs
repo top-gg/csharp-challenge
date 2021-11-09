@@ -1,7 +1,9 @@
-﻿using Moq;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Moq;
+using NUnit.Framework;
+
 using topggcsharpchallenge.Models;
 using topggcsharpchallenge.Services;
 
@@ -23,8 +25,8 @@ namespace topggcsharpchallengetest.Services
         [Test]
         public void GetShouldBeSuccessfull()
         {
-            int latitude = 10;
-            int longitude = 20;
+            int latitude = 0;
+            int longitude = 0;
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
@@ -68,8 +70,8 @@ namespace topggcsharpchallengetest.Services
         [Test]
         public void GetShouldReturnOnlyQuakesWithValidTime()
         {
-            int latitude = 10;
-            int longitude = 20;
+            int latitude = 0;
+            int longitude = 0;
             DateTime startDate = new DateTime(1995, 1, 1);
             DateTime endDate = new DateTime(2020, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
@@ -79,6 +81,21 @@ namespace topggcsharpchallengetest.Services
 
             Assert.That(actualEarthquakeData.Count, Is.EqualTo(1));
             Assert.That(actualEarthquakeData[0], Is.EqualTo(expectedEarthquakeData[1]));
+        }
+
+        [Test]
+        public void GetShouldReturnNoQuakesWhenThereAreNoneInRange()
+        {
+            int latitude = 90;
+            int longitude = 90;
+            DateTime startDate = DateTime.MinValue;
+            DateTime endDate = DateTime.MaxValue;
+            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
+            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+
+            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+
+            Assert.That(actualEarthquakeData, Is.Empty);
         }
 
         private IList<EarthquakeResponseModel> getUsgsServiceGetEarthquakeDataMocks()
@@ -91,7 +108,7 @@ namespace topggcsharpchallengetest.Services
                     Latitude = 0,
                     Longitude = 0,
                     Depth = 123.456,
-                    Mag = 654.312,
+                    Mag = 1,
                     MagType = "md",
                     Nst = 1,
                     Gap = 2,
@@ -116,7 +133,7 @@ namespace topggcsharpchallengetest.Services
                     Latitude = 180,
                     Longitude = 180,
                     Depth = 0.000003,
-                    Mag = 0.000004,
+                    Mag = 2,
                     MagType = "dm",
                     Nst = 200,
                     Gap = 300,

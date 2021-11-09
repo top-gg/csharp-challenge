@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Microsoft.AspNetCore.Mvc;
+
 using topggcsharpchallenge.Models;
 using topggcsharpchallenge.Services;
 
