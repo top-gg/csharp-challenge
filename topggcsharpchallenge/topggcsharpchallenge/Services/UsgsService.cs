@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
-
-using topggcsharpchallenge.Models;
+﻿using System.Net;
 
 namespace topggcsharpchallenge.Services
 {
     class UsgsService : IUsgsService
     {
-        public IList<EarthquakeResponseModel> getEarthquakeData()
+        public string GetEarthquakeData()
         {
-            throw new System.NotImplementedException();
+            string latestReportUrl = Constants.USGS_LATEST_REPORT_URL;
+
+            using (var client = new WebClient())
+            {
+                return client.DownloadString(latestReportUrl);
+            }
         }
     }
 }

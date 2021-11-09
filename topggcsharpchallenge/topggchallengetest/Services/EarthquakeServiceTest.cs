@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Moq;
 using NUnit.Framework;
 using topggcsharpchallenge;
@@ -30,7 +31,8 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> mockedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(mockedEarthquakeData);
+            string csv = createCsv(mockedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(csv);
             IList<EarthquakeResponseModel> expectedEarthquakeData = mockedEarthquakeData.OrderByDescending(x => x.Time).ToList();
 
             IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
@@ -51,7 +53,7 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = new DateTime(1111, 1, 1);
             DateTime endDate = new DateTime(1112, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
 
             IEnumerable<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
@@ -66,7 +68,7 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = new DateTime(2222, 1, 1);
             DateTime endDate = new DateTime(2223, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
 
             IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
@@ -81,7 +83,7 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = new DateTime(1995, 1, 1);
             DateTime endDate = new DateTime(2020, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
 
             IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
@@ -97,7 +99,7 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
 
             IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
@@ -112,7 +114,7 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
 
             IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
@@ -128,7 +130,7 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocksMany();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
 
             IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
@@ -185,7 +187,7 @@ namespace topggcsharpchallengetest.Services
                     DepthError = 0.000008,
                     MagError = 0.000009,
                     MagNst = 400,
-                    Status = "reviwed",
+                    Status = "reviewed",
                     LocationSource = "ls",
                     MagSource = "ms"
                 },
@@ -209,8 +211,21 @@ namespace topggcsharpchallengetest.Services
                 new EarthquakeResponseModel(),
                 new EarthquakeResponseModel(),
                 new EarthquakeResponseModel(),
-                new EarthquakeResponseModel(),
             };
+        }
+
+        private string createCsv(IList<EarthquakeResponseModel> quakes)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource");
+            foreach (EarthquakeResponseModel quake in quakes)
+            {
+                stringBuilder.Append("\n");
+                stringBuilder.Append(quake.ToString());
+            }
+
+
+            return stringBuilder.ToString();
         }
     }
 }
