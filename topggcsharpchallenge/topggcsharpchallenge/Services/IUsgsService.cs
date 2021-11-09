@@ -1,7 +1,9 @@
-﻿namespace topggcsharpchallenge.Services
+﻿using System.Threading.Tasks;
+
+namespace topggcsharpchallenge.Services
 {
     public interface IUsgsService
     {
-        byte[] GetEarthquakeData();
+        Task<byte[]> GetEarthquakeData();
     }
 }

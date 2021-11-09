@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using topggcsharpchallenge;
@@ -24,7 +25,7 @@ namespace topggcsharpchallengetest.Services
         }
 
         [Test]
-        public void GetShouldBeSuccessfull()
+        public async Task GetShouldBeSuccessfull()
         {
             int latitude = 0;
             int longitude = 0;
@@ -32,10 +33,10 @@ namespace topggcsharpchallengetest.Services
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> mockedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
             byte[] csv = createCsv(mockedEarthquakeData);
-            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(csv);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(Task.FromResult(csv));
             IList<EarthquakeResponseModel> expectedEarthquakeData = mockedEarthquakeData.OrderByDescending(x => x.Time).ToList();
 
-            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = await sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData, Is.EqualTo(expectedEarthquakeData));
             IList<DateTime> dates = actualEarthquakeData.Select(x => x.Time).ToList();
@@ -46,93 +47,99 @@ namespace topggcsharpchallengetest.Services
         }
 
         [Test]
-        public void GetShouldReturnEmptyWhenIntervalBeforeAnyQuakes()
+        public async Task GetShouldReturnEmptyWhenIntervalBeforeAnyQuakes()
         {
             int latitude = 10;
             int longitude = 20;
             DateTime startDate = new DateTime(1111, 1, 1);
             DateTime endDate = new DateTime(1112, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
+            byte[] csv = createCsv(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(Task.FromResult(csv));
 
-            IEnumerable<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IEnumerable<EarthquakeResponseModel> actualEarthquakeData = await sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData, Is.Empty);
         }
 
         [Test]
-        public void GetShouldReturnEmptyWhenIntervalAfterAnyQuakes()
+        public async Task GetShouldReturnEmptyWhenIntervalAfterAnyQuakes()
         {
             int latitude = 10;
             int longitude = 20;
             DateTime startDate = new DateTime(2222, 1, 1);
             DateTime endDate = new DateTime(2223, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
+            byte[] csv = createCsv(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(Task.FromResult(csv));
 
-            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = await sut .Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData, Is.Empty);
         }
 
         [Test]
-        public void GetShouldReturnOnlyQuakesWithValidTime()
+        public async Task GetShouldReturnOnlyQuakesWithValidTime()
         {
             int latitude = 0;
             int longitude = 0;
             DateTime startDate = new DateTime(1995, 1, 1);
             DateTime endDate = new DateTime(2020, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
+            byte[] csv = createCsv(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(Task.FromResult(csv));
 
-            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = await sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData.Count, Is.EqualTo(1));
             Assert.That(actualEarthquakeData[0], Is.EqualTo(expectedEarthquakeData[1]));
         }
 
         [Test]
-        public void GetShouldReturnNoQuakesWhenThereAreNoneInRange()
+        public async Task GetShouldReturnNoQuakesWhenThereAreNoneInRange()
         {
             int latitude = 90;
             int longitude = 90;
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
+            byte[] csv = createCsv(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(Task.FromResult(csv));
 
-            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = await sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData, Is.Empty);
         }
 
         [Test]
-        public void GetShouldReturnSomeQuakesWhenTheyAreInRange()
+        public async Task GetShouldReturnSomeQuakesWhenTheyAreInRange()
         {
             int latitude = 10;
             int longitude = 10;
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
+            byte[] csv = createCsv(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(Task.FromResult(csv));
 
-            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = await sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData.Count, Is.EqualTo(1));
             Assert.That(actualEarthquakeData[0], Is.EqualTo(expectedEarthquakeData[1]));
         }
 
         [Test]
-        public void GetShouldReturnNoMoreThanTheLimitOfResults()
+        public async Task GetShouldReturnNoMoreThanTheLimitOfResults()
         {
             int latitude = 0;
             int longitude = 0;
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocksMany();
-            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(createCsv(expectedEarthquakeData));
+            byte[] csv = createCsv(expectedEarthquakeData);
+            usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(Task.FromResult(csv));
 
-            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = await sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData.Count, Is.EqualTo(Constants.EARTHQUAKE_COUNT_LIMIT));
         }

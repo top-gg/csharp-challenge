@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,13 +23,13 @@ namespace topggcsharpchallenge.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<EarthquakeResponseModel>> Get(
+        public async Task<ActionResult<IEnumerable<EarthquakeResponseModel>>> Get(
             [FromQuery(Name = "lat")] double latitude,
             [FromQuery(Name = "long")] double longitude,
             [FromQuery(Name = "start_date")] DateTime startDate,
             [FromQuery(Name = "end_date")] DateTime endDate)
         {
-            IList<EarthquakeResponseModel> quakes = earthquakeService.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> quakes = await earthquakeService.Get(latitude, longitude, startDate, endDate);
             if (quakes.Count == 0)
             {
                 return NotFound();

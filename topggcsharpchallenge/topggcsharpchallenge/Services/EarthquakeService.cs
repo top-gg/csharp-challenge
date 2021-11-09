@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Microsoft.VisualBasic.FileIO;
 
@@ -18,9 +19,9 @@ namespace topggcsharpchallenge.Services
             this.usgsService = usgsService;
         }
 
-        IList<EarthquakeResponseModel> IEarthquakeService.Get(double latitude, double longitude, DateTime startDate, DateTime endDate)
+        async Task<IList<EarthquakeResponseModel>> IEarthquakeService.Get(double latitude, double longitude, DateTime startDate, DateTime endDate)
         {
-            byte[] earthquakeCsv = usgsService.GetEarthquakeData();
+            byte[] earthquakeCsv = await usgsService.GetEarthquakeData();
 
             IList<EarthquakeResponseModel> earthquakes = ParseEarthquakes(earthquakeCsv);
 

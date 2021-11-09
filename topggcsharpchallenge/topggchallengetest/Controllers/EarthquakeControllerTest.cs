@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 
@@ -24,18 +26,37 @@ namespace topggcsharpchallengetest.Controllers
         }
 
         [Test]
-        public void GetShouldBeSuccessfull()
+        public async Task GetShouldBeSuccessfull()
         {
             int latitude = 10;
             int longitude = 20;
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.Now;
             IList<EarthquakeResponseModel> mockedData = getEarthquakeResponseModelMockData();
-            earthquakeServiceMock.Setup((x) => x.Get(latitude, longitude, startDate, endDate)).Returns(mockedData);
+            earthquakeServiceMock.Setup((x) => x.Get(latitude, longitude, startDate, endDate)).Returns(Task.FromResult(mockedData));
 
-            IEnumerable<EarthquakeResponseModel> actualData = sut.Get(latitude, longitude, startDate, endDate);
+            ActionResult<IEnumerable<EarthquakeResponseModel>> response = await sut.Get(latitude, longitude, startDate, endDate);
 
-            Assert.That(actualData, Is.EqualTo(mockedData));
+            Assert.IsInstanceOf<OkObjectResult>(response.Result);
+            OkObjectResult result = (OkObjectResult) response.Result;
+            Assert.That(result.Value, Is.EqualTo(mockedData));
+            earthquakeServiceMock.Verify((x) => x.Get(latitude, longitude, startDate, endDate), Times.Once);
+        }
+
+
+        [Test]
+        public async Task GetShouldReturn404WhenNoQuakesFound()
+        {
+            int latitude = 10;
+            int longitude = 20;
+            DateTime startDate = DateTime.MinValue;
+            DateTime endDate = DateTime.Now;
+            IList<EarthquakeResponseModel> mockedData = new List<EarthquakeResponseModel>();
+            earthquakeServiceMock.Setup((x) => x.Get(latitude, longitude, startDate, endDate)).Returns(Task.FromResult(mockedData));
+
+            ActionResult<IEnumerable<EarthquakeResponseModel>> response = await sut.Get(latitude, longitude, startDate, endDate);
+
+            Assert.IsInstanceOf<NotFoundResult>(response.Result);
             earthquakeServiceMock.Verify((x) => x.Get(latitude, longitude, startDate, endDate), Times.Once);
         }
 
