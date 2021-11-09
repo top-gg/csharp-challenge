@@ -40,8 +40,8 @@ namespace topggcsharpchallengetest.Services
         {
             int latitude = 10;
             int longitude = 20;
-            DateTime startDate = new DateTime(1111);
-            DateTime endDate = new DateTime(1112);
+            DateTime startDate = new DateTime(1111, 1, 1);
+            DateTime endDate = new DateTime(1112, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
             usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
 
@@ -55,14 +55,30 @@ namespace topggcsharpchallengetest.Services
         {
             int latitude = 10;
             int longitude = 20;
-            DateTime startDate = new DateTime(2222);
-            DateTime endDate = new DateTime(2223);
+            DateTime startDate = new DateTime(2222, 1, 1);
+            DateTime endDate = new DateTime(2223, 1, 1);
             IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
             usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
 
-            IEnumerable<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData, Is.Empty);
+        }
+
+        [Test]
+        public void GetShouldReturnOnlyQuakesWithValidTime()
+        {
+            int latitude = 10;
+            int longitude = 20;
+            DateTime startDate = new DateTime(1995, 1, 1);
+            DateTime endDate = new DateTime(2020, 1, 1);
+            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
+            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+
+            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+
+            Assert.That(actualEarthquakeData.Count, Is.EqualTo(1));
+            Assert.That(actualEarthquakeData[0], Is.EqualTo(expectedEarthquakeData[1]));
         }
 
         private IList<EarthquakeResponseModel> getUsgsServiceGetEarthquakeDataMocks()
