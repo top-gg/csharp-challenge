@@ -8,7 +8,7 @@ namespace topggcsharpchallenge.Controllers
 {
     [ApiController]
     [Route("earthquakes")]
-    public class EarthquakeController : ControllerBase
+    class EarthquakeController : ControllerBase
     {
         private IEarthquakeService earthquakeService;
 

@@ -4,7 +4,7 @@ using topggcsharpchallenge.Models;
 
 namespace topggcsharpchallenge.Services
 {
-    public interface IEarthquakeService
+    interface IEarthquakeService
     {
         IEnumerable<EarthquakeResponseModel> Get(int latitude, int longitude, DateTime startDate, DateTime endDate);
     }

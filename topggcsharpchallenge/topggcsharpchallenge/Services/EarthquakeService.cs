@@ -4,11 +4,19 @@ using topggcsharpchallenge.Models;
 
 namespace topggcsharpchallenge.Services
 {
-    public class EarthquakeService : IEarthquakeService
+    class EarthquakeService : IEarthquakeService
     {
+        private readonly IUsgsService usgsService;
+
+        public EarthquakeService(IUsgsService usgsService)
+        {
+            this.usgsService = usgsService;
+        }
+
         IEnumerable<EarthquakeResponseModel> IEarthquakeService.Get(int latitude, int longitude, DateTime startDate, DateTime endDate)
         {
-            throw new NotImplementedException();
+            IEnumerable<EarthquakeResponseModel> earthquakeData = usgsService.getEarthquakeData();
+            return earthquakeData;
         }
     }
 }
