@@ -6,6 +6,6 @@ namespace topggcsharpchallenge.Services
 {
     interface IEarthquakeService
     {
-        IEnumerable<EarthquakeResponseModel> Get(int latitude, int longitude, DateTime startDate, DateTime endDate);
+        IList<EarthquakeResponseModel> Get(int latitude, int longitude, DateTime startDate, DateTime endDate);
     }
 }

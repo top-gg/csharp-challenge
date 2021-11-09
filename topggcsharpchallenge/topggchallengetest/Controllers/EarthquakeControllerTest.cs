@@ -11,8 +11,9 @@ namespace topggcsharpchallengetest.Controllers
     [TestFixture]
     public class EarthquakeControllerTest
     {
-        readonly Mock<IEarthquakeService> earthquakeServiceMock = new Mock<IEarthquakeService>();
-        EarthquakeController sut;
+        private readonly Mock<IEarthquakeService> earthquakeServiceMock = new Mock<IEarthquakeService>();
+
+        private EarthquakeController sut;
 
         [SetUp]
         public void SetUp()
@@ -27,7 +28,7 @@ namespace topggcsharpchallengetest.Controllers
             int longitude = 20;
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.Now;
-            IEnumerable<EarthquakeResponseModel> mockedData = getEarthquakeResponseModelMockData();
+            IList<EarthquakeResponseModel> mockedData = getEarthquakeResponseModelMockData();
             earthquakeServiceMock.Setup((x) => x.Get(latitude, longitude, startDate, endDate)).Returns(mockedData);
 
             IEnumerable<EarthquakeResponseModel> actualData = sut.Get(latitude, longitude, startDate, endDate);
@@ -36,7 +37,7 @@ namespace topggcsharpchallengetest.Controllers
             earthquakeServiceMock.Verify((x) => x.Get(latitude, longitude, startDate, endDate), Times.Once);
         }
 
-        private IEnumerable<EarthquakeResponseModel> getEarthquakeResponseModelMockData()
+        private IList<EarthquakeResponseModel> getEarthquakeResponseModelMockData()
         {
             return new List<EarthquakeResponseModel>()
             {

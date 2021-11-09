@@ -5,6 +5,6 @@ namespace topggcsharpchallenge.Services
 {
     interface IUsgsService
     {
-        IEnumerable<EarthquakeResponseModel> getEarthquakeData();
+        IList<EarthquakeResponseModel> getEarthquakeData();
     }
 }

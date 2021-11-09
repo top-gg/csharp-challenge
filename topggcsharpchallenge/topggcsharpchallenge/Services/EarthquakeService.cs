@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using topggcsharpchallenge.Models;
 
 namespace topggcsharpchallenge.Services
@@ -13,10 +14,10 @@ namespace topggcsharpchallenge.Services
             this.usgsService = usgsService;
         }
 
-        IEnumerable<EarthquakeResponseModel> IEarthquakeService.Get(int latitude, int longitude, DateTime startDate, DateTime endDate)
+        IList<EarthquakeResponseModel> IEarthquakeService.Get(int latitude, int longitude, DateTime startDate, DateTime endDate)
         {
-            IEnumerable<EarthquakeResponseModel> earthquakeData = usgsService.getEarthquakeData();
-            return earthquakeData;
+            IList<EarthquakeResponseModel> earthquakeData = usgsService.getEarthquakeData();
+            return earthquakeData.Where(x => startDate <= x.Time && x.Time <= endDate).ToList();
         }
     }
 }

@@ -10,9 +10,9 @@ namespace topggcsharpchallengetest.Services
     [TestFixture]
     public class EarthquakeServiceTest
     {
-        readonly Mock<IUsgsService> usgsServiceMock = new Mock<IUsgsService>();
+        private readonly Mock<IUsgsService> usgsServiceMock = new Mock<IUsgsService>();
 
-        IEarthquakeService sut;
+        private IEarthquakeService sut;
 
         [SetUp]
         public void SetUp()
@@ -26,8 +26,8 @@ namespace topggcsharpchallengetest.Services
             int latitude = 10;
             int longitude = 20;
             DateTime startDate = DateTime.MinValue;
-            DateTime endDate = DateTime.Now;
-            IEnumerable<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
+            DateTime endDate = DateTime.MaxValue;
+            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
             usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
 
             IEnumerable<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
@@ -35,15 +35,45 @@ namespace topggcsharpchallengetest.Services
             Assert.That(actualEarthquakeData, Is.EqualTo(expectedEarthquakeData));
         }
 
-        private IEnumerable<EarthquakeResponseModel> getUsgsServiceGetEarthquakeDataMocks()
+        [Test]
+        public void GetShouldReturnEmptyWhenIntervalBeforeAnyQuakes()
+        {
+            int latitude = 10;
+            int longitude = 20;
+            DateTime startDate = new DateTime(1111);
+            DateTime endDate = new DateTime(1112);
+            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
+            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+
+            IEnumerable<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+
+            Assert.That(actualEarthquakeData, Is.Empty);
+        }
+
+        [Test]
+        public void GetShouldReturnEmptyWhenIntervalAfterAnyQuakes()
+        {
+            int latitude = 10;
+            int longitude = 20;
+            DateTime startDate = new DateTime(2222);
+            DateTime endDate = new DateTime(2223);
+            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
+            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+
+            IEnumerable<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+
+            Assert.That(actualEarthquakeData, Is.Empty);
+        }
+
+        private IList<EarthquakeResponseModel> getUsgsServiceGetEarthquakeDataMocks()
         {
             return new List<EarthquakeResponseModel>()
             {
                 new EarthquakeResponseModel()
                 {
-                    Time = DateTime.MinValue,
-                    Latitude = 0.1234,
-                    Longitude = 4.3210,
+                    Time = new DateTime(1993, 9, 29),
+                    Latitude = 0,
+                    Longitude = 0,
                     Depth = 123.456,
                     Mag = 654.312,
                     MagType = "md",
@@ -53,7 +83,7 @@ namespace topggcsharpchallengetest.Services
                     Rms = 3.45,
                     Net = "nc",
                     Id = "nc73636400",
-                    Updated = DateTime.Now,
+                    Updated = new DateTime(1993, 9, 29),
                     Place = "sofia",
                     Type = "earthquake",
                     HorizontalError = 0.111,
@@ -66,9 +96,9 @@ namespace topggcsharpchallengetest.Services
                 },
                 new EarthquakeResponseModel()
                 {
-                    Time = DateTime.Now,
-                    Latitude = 0.000001,
-                    Longitude = 0.000002,
+                    Time = new DateTime(1996, 1, 11),
+                    Latitude = 180,
+                    Longitude = 180,
                     Depth = 0.000003,
                     Mag = 0.000004,
                     MagType = "dm",
@@ -78,7 +108,7 @@ namespace topggcsharpchallengetest.Services
                     Rms = 0.000006,
                     Net = "cn",
                     Id = "cn73636400",
-                    Updated = DateTime.MaxValue,
+                    Updated = new DateTime(1996, 1, 11),
                     Place = "nyc",
                     Type = "earthquake",
                     HorizontalError = 0.000007,

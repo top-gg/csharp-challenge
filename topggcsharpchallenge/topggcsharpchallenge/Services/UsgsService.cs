@@ -5,7 +5,7 @@ namespace topggcsharpchallenge.Services
 {
     class UsgsService : IUsgsService
     {
-        public IEnumerable<EarthquakeResponseModel> getEarthquakeData()
+        public IList<EarthquakeResponseModel> getEarthquakeData()
         {
             throw new System.NotImplementedException();
         }
