@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace topggcsharpchallenge.Controllers
 {
@@ -6,5 +7,8 @@ namespace topggcsharpchallenge.Controllers
     [Route("earthquakes")]
     public class EearthquakeController : ControllerBase
     {
+        public void Get()
+        {
+        }
     }
 }
