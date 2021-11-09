@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using topggcsharpchallenge.Services;
 
 namespace topggcsharpchallenge
 {
@@ -22,6 +23,9 @@ namespace topggcsharpchallenge
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddScoped<IEarthquakeService, EarthquakeService>();
+            services.AddScoped<IUsgsService, UsgsService>();
 
             services.AddSwaggerGen(c =>
             {

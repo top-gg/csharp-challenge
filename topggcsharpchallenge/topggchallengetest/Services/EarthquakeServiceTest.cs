@@ -31,7 +31,7 @@ namespace topggcsharpchallengetest.Services
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
             IList<EarthquakeResponseModel> mockedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            string csv = createCsv(mockedEarthquakeData);
+            byte[] csv = createCsv(mockedEarthquakeData);
             usgsServiceMock.Setup((x) => x.GetEarthquakeData()).Returns(csv);
             IList<EarthquakeResponseModel> expectedEarthquakeData = mockedEarthquakeData.OrderByDescending(x => x.Time).ToList();
 
@@ -214,7 +214,7 @@ namespace topggcsharpchallengetest.Services
             };
         }
 
-        private string createCsv(IList<EarthquakeResponseModel> quakes)
+        private byte[] createCsv(IList<EarthquakeResponseModel> quakes)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append("time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource");
@@ -225,7 +225,7 @@ namespace topggcsharpchallengetest.Services
             }
 
 
-            return stringBuilder.ToString();
+            return Encoding.ASCII.GetBytes(stringBuilder.ToString());
         }
     }
 }

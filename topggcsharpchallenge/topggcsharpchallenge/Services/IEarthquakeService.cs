@@ -5,8 +5,8 @@ using topggcsharpchallenge.Models;
 
 namespace topggcsharpchallenge.Services
 {
-    interface IEarthquakeService
+    public interface IEarthquakeService
     {
-        IList<EarthquakeResponseModel> Get(int latitude, int longitude, DateTime startDate, DateTime endDate);
+        IList<EarthquakeResponseModel> Get(double latitude, double longitude, DateTime startDate, DateTime endDate);
     }
 }

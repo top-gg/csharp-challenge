@@ -1,7 +1,7 @@
 ﻿namespace topggcsharpchallenge.Services
 {
-    interface IUsgsService
+    public interface IUsgsService
     {
-        string GetEarthquakeData();
+        byte[] GetEarthquakeData();
     }
 }

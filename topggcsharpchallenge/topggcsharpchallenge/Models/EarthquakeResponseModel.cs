@@ -12,7 +12,7 @@ namespace topggcsharpchallenge.Models
         public double Mag { get; set; }
         public string MagType { get; set; }
         public int Nst { get; set; }
-        public int Gap { get; set; }
+        public double Gap { get; set; }
         public double Dmin { get; set; }
         public double Rms { get; set; }
         public string Net { get; set; }

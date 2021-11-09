@@ -2,15 +2,15 @@
 
 namespace topggcsharpchallenge.Services
 {
-    class UsgsService : IUsgsService
+    public class UsgsService : IUsgsService
     {
-        public string GetEarthquakeData()
+        public byte[] GetEarthquakeData()
         {
             string latestReportUrl = Constants.USGS_LATEST_REPORT_URL;
 
             using (var client = new WebClient())
             {
-                return client.DownloadString(latestReportUrl);
+                return client.DownloadData(latestReportUrl);
             }
         }
     }

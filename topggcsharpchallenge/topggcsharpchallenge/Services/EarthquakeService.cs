@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+
+using Microsoft.VisualBasic.FileIO;
 
 using topggcsharpchallenge.Models;
 
 namespace topggcsharpchallenge.Services
 {
-    class EarthquakeService : IEarthquakeService
+    public class EarthquakeService : IEarthquakeService
     {
         private readonly IUsgsService usgsService;
 
@@ -15,9 +18,9 @@ namespace topggcsharpchallenge.Services
             this.usgsService = usgsService;
         }
 
-        IList<EarthquakeResponseModel> IEarthquakeService.Get(int latitude, int longitude, DateTime startDate, DateTime endDate)
+        IList<EarthquakeResponseModel> IEarthquakeService.Get(double latitude, double longitude, DateTime startDate, DateTime endDate)
         {
-            string earthquakeCsv = usgsService.GetEarthquakeData();
+            byte[] earthquakeCsv = usgsService.GetEarthquakeData();
 
             IList<EarthquakeResponseModel> earthquakes = ParseEarthquakes(earthquakeCsv);
 
@@ -42,48 +45,72 @@ namespace topggcsharpchallenge.Services
             return sphereRadius * c;
         }
 
-        private IList<EarthquakeResponseModel> ParseEarthquakes(string csv)
+        private IList<EarthquakeResponseModel> ParseEarthquakes(byte[] csv)
         {
-            string[] allRows = csv.Split('\n');
             IList<EarthquakeResponseModel> result = new List<EarthquakeResponseModel>();
-            IEnumerable<string> dataRows = allRows.TakeLast(allRows.Length - 1);
-            foreach(string row in dataRows)
+            using (TextFieldParser parser = new TextFieldParser(new MemoryStream(csv)))
             {
-                result.Add(ParseEarthquake(row));
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+                bool headerSkipped = false;
+                while (!parser.EndOfData)
+                {
+                    string[] fields = parser.ReadFields();
+                    if (!headerSkipped)
+                    {
+                        headerSkipped = true;
+                        continue;
+                    }
+
+                    result.Add(ParseEarthquake(fields));
+                }
             }
 
             return result;
         }
 
-        private EarthquakeResponseModel ParseEarthquake(string row)
+        private EarthquakeResponseModel ParseEarthquake(string[] fields)
         {
-            string[] columnData = row.Split(','); ;
-
             return new EarthquakeResponseModel()
             {
-                Time = DateTime.Parse(columnData[0]),
-                Latitude = double.Parse(columnData[1]),
-                Longitude = double.Parse(columnData[2]),
-                Depth = double.Parse(columnData[3]),
-                Mag = double.Parse(columnData[4]),
-                MagType = columnData[5],
-                Nst = int.Parse(columnData[6]),
-                Gap = int.Parse(columnData[7]),
-                Dmin = double.Parse(columnData[8]),
-                Rms = double.Parse(columnData[9]),
-                Net = columnData[10],
-                Id = columnData[11],
-                Updated = DateTime.Parse(columnData[12]),
-                Place = columnData[13],
-                Type = columnData[14],
-                HorizontalError = double.Parse(columnData[15]),
-                DepthError = double.Parse(columnData[16]),
-                MagError = double.Parse(columnData[17]),
-                MagNst = int.Parse(columnData[18]),
-                Status = columnData[19],
-                LocationSource = columnData[20],
-                MagSource = columnData[21],
+                Time = parseToDateTimeOrDefault(fields[0]),
+                Latitude = parseToDoubleOrDefault(fields[1]),
+                Longitude = parseToDoubleOrDefault(fields[2]),
+                Depth = parseToDoubleOrDefault(fields[3]),
+                Mag = parseToDoubleOrDefault(fields[4]),
+                MagType = fields[5],
+                Nst = parseToIntegerOrDefault(fields[6]),
+                Gap = parseToDoubleOrDefault(fields[7]),
+                Dmin = parseToDoubleOrDefault(fields[8]),
+                Rms = parseToDoubleOrDefault(fields[9]),
+                Net = fields[10],
+                Id = fields[11],
+                Updated = parseToDateTimeOrDefault(fields[12]),
+                Place = fields[13],
+                Type = fields[14],
+                HorizontalError = parseToDoubleOrDefault(fields[15]),
+                DepthError = parseToDoubleOrDefault(fields[16]),
+                MagError = parseToDoubleOrDefault(fields[17]),
+                MagNst = parseToIntegerOrDefault(fields[18]),
+                Status = fields[19],
+                LocationSource = fields[20],
+                MagSource = fields[21]
             };
+        }
+
+        private double parseToDoubleOrDefault(string i)
+        {
+            return i != string.Empty ? double.Parse(i) : 0;
+        }
+
+        private int parseToIntegerOrDefault(string i)
+        {
+            return i != string.Empty ? int.Parse(i) : 0;
+        }
+
+        private DateTime parseToDateTimeOrDefault(string date)
+        {
+            return date != string.Empty ? DateTime.Parse(date) : new DateTime();
         }
     }
 }
