@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Moq;
 using NUnit.Framework;
-
+using topggcsharpchallenge;
 using topggcsharpchallenge.Models;
 using topggcsharpchallenge.Services;
 
@@ -29,12 +29,18 @@ namespace topggcsharpchallengetest.Services
             int longitude = 0;
             DateTime startDate = DateTime.MinValue;
             DateTime endDate = DateTime.MaxValue;
-            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
-            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+            IList<EarthquakeResponseModel> mockedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
+            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(mockedEarthquakeData);
+            IList<EarthquakeResponseModel> expectedEarthquakeData = mockedEarthquakeData.OrderByDescending(x => x.Time).ToList();
 
-            IEnumerable<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
 
             Assert.That(actualEarthquakeData, Is.EqualTo(expectedEarthquakeData));
+            IList<DateTime> dates = actualEarthquakeData.Select(x => x.Time).ToList();
+            for (int i = 0; i < dates.Count - 1; i++)
+            {
+                Assert.That(dates[i] >= dates[i + 1]);
+            }
         }
 
         [Test]
@@ -98,6 +104,37 @@ namespace topggcsharpchallengetest.Services
             Assert.That(actualEarthquakeData, Is.Empty);
         }
 
+        [Test]
+        public void GetShouldReturnSomeQuakesWhenTheyAreInRange()
+        {
+            int latitude = 10;
+            int longitude = 10;
+            DateTime startDate = DateTime.MinValue;
+            DateTime endDate = DateTime.MaxValue;
+            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocks();
+            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+
+            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+
+            Assert.That(actualEarthquakeData.Count, Is.EqualTo(1));
+            Assert.That(actualEarthquakeData[0], Is.EqualTo(expectedEarthquakeData[1]));
+        }
+
+        [Test]
+        public void GetShouldReturnNoMoreThanTheLimitOfResults()
+        {
+            int latitude = 0;
+            int longitude = 0;
+            DateTime startDate = DateTime.MinValue;
+            DateTime endDate = DateTime.MaxValue;
+            IList<EarthquakeResponseModel> expectedEarthquakeData = getUsgsServiceGetEarthquakeDataMocksMany();
+            usgsServiceMock.Setup((x) => x.getEarthquakeData()).Returns(expectedEarthquakeData);
+
+            IList<EarthquakeResponseModel> actualEarthquakeData = sut.Get(latitude, longitude, startDate, endDate);
+
+            Assert.That(actualEarthquakeData.Count, Is.EqualTo(Constants.EARTHQUAKE_COUNT_LIMIT));
+        }
+
         private IList<EarthquakeResponseModel> getUsgsServiceGetEarthquakeDataMocks()
         {
             return new List<EarthquakeResponseModel>()
@@ -108,7 +145,7 @@ namespace topggcsharpchallengetest.Services
                     Latitude = 0,
                     Longitude = 0,
                     Depth = 123.456,
-                    Mag = 1,
+                    Mag = 0.00000001,
                     MagType = "md",
                     Nst = 1,
                     Gap = 2,
@@ -133,7 +170,7 @@ namespace topggcsharpchallengetest.Services
                     Latitude = 180,
                     Longitude = 180,
                     Depth = 0.000003,
-                    Mag = 2,
+                    Mag = 20,
                     MagType = "dm",
                     Nst = 200,
                     Gap = 300,
@@ -152,6 +189,27 @@ namespace topggcsharpchallengetest.Services
                     LocationSource = "ls",
                     MagSource = "ms"
                 },
+            };
+        }
+
+        private IList<EarthquakeResponseModel> getUsgsServiceGetEarthquakeDataMocksMany()
+        {
+            return new List<EarthquakeResponseModel>()
+            {
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
+                new EarthquakeResponseModel(),
             };
         }
     }

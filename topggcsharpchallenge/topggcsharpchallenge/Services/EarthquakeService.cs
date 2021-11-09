@@ -20,11 +20,13 @@ namespace topggcsharpchallenge.Services
             IList<EarthquakeResponseModel> earthquakeData = usgsService.getEarthquakeData();
             return earthquakeData
                 .Where(x => startDate <= x.Time && x.Time <= endDate)
-                .Where(x => CalculateDistance(x.Latitude, x.Longitude, latitude, longitude) < x.Mag * Constants.TRAVEL_DISTANCE_FACTOR)
+                .Where(x => CalculateDistanceInSphere(x.Latitude, x.Longitude, latitude, longitude) <= x.Mag * Constants.TRAVEL_DISTANCE_FACTOR)
+                .Take(Constants.EARTHQUAKE_COUNT_LIMIT)
+                .OrderByDescending(x => x.Time)
                 .ToList();
         }
 
-        private double CalculateDistance(double lat1, double long1, double lat2, double long2, int sphereRadius = Constants.EARTH_RADIUS_MILES)
+        private double CalculateDistanceInSphere(double lat1, double long1, double lat2, double long2, int sphereRadius = Constants.EARTH_RADIUS_MILES)
         {
             int degreesInACircle = 180;
             double lat1rad = lat1 * Math.PI / degreesInACircle;
