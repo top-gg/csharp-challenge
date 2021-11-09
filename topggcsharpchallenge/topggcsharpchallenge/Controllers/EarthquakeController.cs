@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using topggcsharpchallenge.Services;
 
 namespace topggcsharpchallenge.Controllers
@@ -15,9 +16,9 @@ namespace topggcsharpchallenge.Controllers
         }
 
         [HttpGet]
-        public void Get()
+        public void Get(int latitude, int longitude, DateTime startDate, DateTime endDate)
         {
-            earthquakeService.Get();
+            earthquakeService.Get(latitude, longitude, startDate, endDate);
         }
     }
 }

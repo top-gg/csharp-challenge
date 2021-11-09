@@ -1,5 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
+using System;
 using topggcsharpchallenge.Controllers;
 using topggcsharpchallenge.Services;
 
@@ -20,9 +21,14 @@ namespace topggcsharpchallengetest.Controllers
         [Test]
         public void GetShouldBeSuccessfull()
         {
-            sut.Get();
+            int latitude = 10;
+            int longitude = 20;
+            DateTime startDate = DateTime.MinValue;
+            DateTime endDate = DateTime.Now;
 
-            earthquakeServiceMock.Verify((x) => x.Get(), Times.Once);
+            sut.Get(latitude, longitude, startDate, endDate);
+
+            earthquakeServiceMock.Verify((x) => x.Get(latitude, longitude, startDate, endDate), Times.Once);
         }
     }
 }
