@@ -28,10 +28,13 @@ namespace Library {
 
         // return null if error
         public List<EQData> QueryEndpoint(double eq_lat, double eq_long, DateTime eq_start_date, DateTime eq_end_date) {
-            // check lat, long range
-
-            if (eq_end_date < eq_start_date)
-                return null; // error
+            // https://earthquake.usgs.gov/data/comcat/index.php
+            if (eq_lat < -90.0 || eq_lat > 90.0)
+                return null;
+            else if (eq_long < -180.0 || eq_long > 180.0)
+                return null;
+            else if (eq_end_date < eq_start_date)
+                return null;
 
             List<EQData> ret = new List<EQData>();
 

@@ -1,22 +1,19 @@
 ﻿using System;
 using System.IO;
+using Nancy;
+using Nancy.Hosting.Self;
 
 namespace Library {
     class Program {
         static void Main(string[] args) {
-            EQDataFrame dataFrame = new EQDataFrame();
-            using (var sr = new StreamReader("../../../all_month.csv")) {
-                string line;
-                int count = 0;
-                while ((line = sr.ReadLine()) != null) {
-                    if (count > 0)
-                        dataFrame.ParseLine(line);
-                    ++ count;
-                }
-                dataFrame.MarkDone();
-            }
-            var test = dataFrame.QueryEndpoint(64.6648, -147.6137, DateTime.Parse("2021-10-05"), DateTime.Parse("2021-10-05"));
-            int a = 0;
+            // https://volkanpaksoy.com/archive/2015/11/11/building-a-simple-http-server-with-nancy/
+            string url = "http://localhost";
+            int port = 8000;
+            var server = new NancyHost(new Uri($"{url}:{port}/"));
+            server.Start();
+            Console.WriteLine("Server is running");
+            Console.ReadKey();
+            server.Stop();
         }
     }
 }
