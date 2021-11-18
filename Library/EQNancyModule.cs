@@ -12,13 +12,13 @@ namespace Library {
             EQDataFrame dataFrame = new EQDataFrame();
             using (var sr = new StreamReader("../../../all_month.csv")) {
                 string line;
-                int count = 0;
+                bool isFirstLine = true;
                 while ((line = sr.ReadLine()) != null) {
-                    if (count > 0)
+                    if (!isFirstLine)
                         dataFrame.ParseLine(line);
-                    ++ count;
+                    else
+                        isFirstLine = false;
                 }
-                dataFrame.MarkDone();
             }
 
             Get("/", parameters => {

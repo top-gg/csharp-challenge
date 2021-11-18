@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace Library {
     public class EQDataFrame {
-        bool isInitialized;
         Dictionary<string, EQData> eqMap = new Dictionary<string, EQData>(); // <eqId, EQData>
         Dictionary<DateTime, List<string>> eqIdsByEventDate = new Dictionary<DateTime, List<string>>(); // <event date, eqId[]>
 
@@ -44,25 +41,27 @@ namespace Library {
             int durationInDays = (searchDateEnd - searchDateStart).Duration().Days + 1;
             DateTime searchDate = searchDateStart;
             for (int i = 0; i < durationInDays; ++ i) {
-                var eqsOnDay = eqIdsByEventDate[searchDate];
-                if (eqsOnDay.Count > 0) {
-                    foreach (var id in eqsOnDay) {
-                        var eqData = eqMap[id];
-                        if (eqData == null)
-                            continue;
+                List<string> eqsOnDay;
+                if (!eqIdsByEventDate.TryGetValue(searchDate, out eqsOnDay)
+                    || eqsOnDay == null
+                    || eqsOnDay.Count == 0)
+                    continue;
+                foreach (var id in eqsOnDay) {
+                    var eqData = eqMap[id];
+                    if (eqData == null)
+                        continue;
 
-                        double dist = CalcDistBetweenTwoLocationsInMiles(eqData.Latitude, eqData.Longitude,
-                                                                            eq_lat, eq_long);
-                        if (dist > (eqData.Magnitude * 100.0))
-                            continue;
-                        ret.Add(eqData);
-                    }
+                    double dist = CalcDistBetweenTwoLocationsInMiles(eqData.Latitude, eqData.Longitude,
+                                                                        eq_lat, eq_long);
+                    if (dist > (eqData.Magnitude * 100.0))
+                        continue;
+                    ret.Add(eqData);
                 }
                 searchDate = searchDate.AddDays(1.0);
             }
 
             ret.Sort(delegate(EQData x, EQData y) {
-                return x.EventTime.CompareTo(y);
+                return y.EventTime.CompareTo(x.EventTime);
             });
             return ret;
         }
@@ -70,15 +69,38 @@ namespace Library {
         public void ParseLine(string lineToParse) {
             if (lineToParse == null)
                 return;
-            string[] splitted = lineToParse.Split(',');
+
+            // to handle cases of commas in quote
+            // https://stackoverflow.com/a/48275050
+            //this regular expression splits string on the separator character NOT inside double quotes. 
+            //separatorChar can be any character like comma or semicolon etc. 
+            //it also allows single quotes inside the string value: e.g. "Mike's Kitchen","Jane's Room"
+            Regex regx = new Regex("," + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))"); 
+            string[] splitted = regx.Split(lineToParse);
+            //string[] splitted = lineToParse.Split(',');
             if (splitted[14] != "earthquake") // event type
                 return;
-            var eqData = new EQData(timeStr: splitted[0],
-                                    latitudeStr: splitted[1],
-                                    longitudeStr: splitted[2],
-                                    magnitudeStr: splitted[4],
-                                    idStr: splitted[11],
-                                    placeStr: splitted[13]);
+            
+            string timeStr = splitted[0];
+            string latitudeStr = splitted[1];
+            string longitudeStr = splitted[2];
+            string magnitudeStr = splitted[4];
+            string idStr = splitted[11];
+            string placeStr = splitted[13];
+
+            if (timeStr == string.Empty
+                || latitudeStr == string.Empty 
+                || longitudeStr == string.Empty
+                || magnitudeStr == string.Empty
+                || idStr == string.Empty)
+                return;
+
+            var eqData = new EQData(timeStr: timeStr,
+                                    latitudeStr: latitudeStr,
+                                    longitudeStr: longitudeStr,
+                                    magnitudeStr: magnitudeStr,
+                                    idStr: idStr,
+                                    placeStr: placeStr);
             eqMap.Add(eqData.EventId, eqData);
 
             DateTime timeToStore = eqData.EventTime.Subtract(eqData.EventTime.TimeOfDay);
@@ -91,16 +113,6 @@ namespace Library {
                 eqs.Add(eqData.EventId);
                 eqIdsByEventDate[timeToStore] = eqs;
             }
-        }
-
-        public void MarkDone() {
-            isInitialized = true;
-        }
-
-        public void Clear() {
-            eqMap.Clear();
-            eqIdsByEventDate.Clear();
-            isInitialized = false;
         }
     }
 }
