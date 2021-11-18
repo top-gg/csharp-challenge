@@ -35,6 +35,7 @@ namespace Library {
 
             List<EQData> ret = new List<EQData>();
 
+            // to store the day of the date
             DateTime searchDateStart = eq_start_date.Subtract(eq_start_date.TimeOfDay);
             DateTime searchDateEnd = eq_end_date.Subtract(eq_end_date.TimeOfDay);
 
@@ -57,7 +58,7 @@ namespace Library {
                         continue;
                     ret.Add(eqData);
                 }
-                searchDate = searchDate.AddDays(1.0);
+                searchDate = searchDate.AddDays(1.0); // walk through the days
             }
 
             ret.Sort(delegate(EQData x, EQData y) {
